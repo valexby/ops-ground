@@ -1,0 +1,9 @@
+[Unit]
+Description=Test server daemon
+
+[Service]
+ExecStart=/usr/local/bin/flask run --host=0.0.0.0 --port=80
+Environment="FLASK_APP=/var/ops-ground/main.py"
+
+[Install]
+WantedBy=multi-user.target

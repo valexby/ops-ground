@@ -1,0 +1,18 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /var/ops-ground
+hooks:
+  BeforeInstall:
+    - location: aws_code_deploy_scripts/install_dependencies.sh
+      timeout: 300
+      runas: root
+  AfterInstall:
+    - location: aws_code_deploy_scripts/after_install.sh
+      timeout: 300
+      runas: root
+  ApplicationStart:
+    - location: aws_code_deploy_scripts/start.sh
+      timeout: 300
+      runas: root
