@@ -1,0 +1,8 @@
+version: "2"
+services:
+  api.lint:
+    extends:
+      file: docker-compose.yml
+      service: api
+    working_dir: /app
+    entrypoint: pylint main.py

@@ -1,0 +1,13 @@
+version: "2"
+services:
+  api:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+    image: api
+    volumes:
+      - "./main.py:/app/main.py"
+    ports:
+      - "5000:80"
+    stdin_open: true
+    tty: true

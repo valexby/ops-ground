@@ -1,8 +1,10 @@
 FROM python:3.7.4-slim-buster
 
-RUN pip install -f requirements.txt
-
 WORKDIR /app
+
+COPY requirements.txt /tmp
+
+RUN pip install -r /tmp/requirements.txt
 
 COPY main.py ./
 
