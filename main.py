@@ -8,4 +8,4 @@ app = Flask(__name__)
 @app.route('/')
 def default():
     """Hello saying method"""
-    return "Hello"
+    return "Hello master"
