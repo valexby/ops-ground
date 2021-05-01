@@ -73,8 +73,25 @@ jobs:
       - name: AWS cli install action
         uses: chrislennon/action-aws-cli@1.1
         env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ops-ground
+          IMAGE_TAG: ${{ github.sha }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-2
       - run: |
-          aws deploy list-deployments
+          IMAGE_NAME=${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+          echo """
+          #!/bin/bash
+          sudo docker pull ${IMAGE_NAME}
+          sudo docker tag ${IMAGE_NAME} api:latest
+          sudo docker rmi ${IMAGE_NAME}
+          """ > aws_code_deploy_scripts/after_install.sh
+          aws deploy push \
+            --application-name OpsGround_App \
+            --s3-location s3://opsgroundcodedeploydemo/OpsGroundApp.zip
+          aws deploy create-deployment \
+            --application-name OpsGround_App \
+            --deployment-config-name CodeDeployDefault.OneAtATime \
+            --deployment-group-name OpsGround_DepGroup \
+            --s3-location bucket=opsgroundcodedeploydemo,bundleType=zip,key=OpsGroundApp.zip
