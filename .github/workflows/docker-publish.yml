@@ -19,20 +19,20 @@ env:
 jobs:
   # Run tests.
   # See also https://docs.docker.com/docker-hub/builds/automated-testing/
-  test:
-    runs-on: ubuntu-latest
+  # test:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Run tests
-        run: |
-          if [ -f docker-compose.test.yml ]; then
-            docker-compose --file docker-compose.test.yml build
-            docker-compose --file docker-compose.test.yml run api.lint
-          else
-            docker build . --file Dockerfile
-          fi
+  #     - name: Run tests
+  #       run: |
+  #         if [ -f docker-compose.test.yml ]; then
+  #           docker-compose --file docker-compose.test.yml build
+  #           docker-compose --file docker-compose.test.yml run api.lint
+  #         else
+  #           docker build . --file Dockerfile
+  #         fi
 
   # Push image to GitHub Packages.
   # See also https://docs.docker.com/docker-hub/builds/
@@ -56,8 +56,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
 
-      # - name: Log into registry
-      #   run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -71,24 +69,13 @@ jobs:
           docker tag $IMAGE_NAME $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # - name: Push image
-        # run: |
-        #   IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+      - name: Login to aws cli
+        uses: ItsKarma/aws-cli@v1.70.0
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-2
 
-        #   # Change all uppercase to lowercase
-        #   IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-
-        #   # Strip git ref prefix from version
-        #   VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-        #   # Strip "v" prefix from tag name
-        #   [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-
-        #   # Use Docker `latest` tag convention
-        #   [ "$VERSION" == "main" ] && VERSION=latest
-
-        #   echo IMAGE_ID=$IMAGE_ID
-        #   echo VERSION=$VERSION
-
-        #   docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-        #   docker push $IMAGE_ID:$VERSION
+      - name: Create CodeDeploy deployment
+        run: |
+          aws deploy list-deployments
