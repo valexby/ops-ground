@@ -533,6 +533,10 @@
                     {
                         "Key": "InstancePurpose",
                         "Value": "Backend"
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Storver"
                     }
                 ]
             },
@@ -560,6 +564,12 @@
                             "Ref": "SSHLocation"
                         }
                     }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Application",
+                        "Value": "Storver"
+                    }
                 ]
             },
             "Metadata": {
@@ -570,7 +580,30 @@
         },
         "DDBPictures": {
             "Type": "AWS::DynamoDB::Table",
-            "Properties": {},
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Application",
+                        "Value": "Storver"
+                    }
+                ],
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName" : "ObjectLink",
+                        "AttributeType" : "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName" : "ObjectLink",
+                        "KeyType" : "HASH"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": 1,
+                    "WriteCapacityUnits": 1
+                }
+            },
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
                     "id": "3ca754fb-7e2c-48ad-860f-d5b030ab7026"
@@ -579,7 +612,14 @@
         },
         "S3Pictures": {
             "Type": "AWS::S3::Bucket",
-            "Properties": {},
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Application",
+                        "Value": "Storver"
+                    }
+                ]
+            },
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
                     "id": "1ba8bce6-1832-4430-8612-730ab81d5100"
@@ -588,7 +628,14 @@
         },
         "S3DockerImages": {
             "Type": "AWS::S3::Bucket",
-            "Properties": {},
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Application",
+                        "Value": "Storver"
+                    }
+                ]
+            },
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
                     "id": "cad81b88-eaec-4f16-9a7c-336850b8d76c"
@@ -602,12 +649,12 @@
                 "Targets": [
                     {
                         "Key": "tag:InstancePurpose",
-                        "Value": "Backend"
+                        "Values": ["Backend"]
                     }
                 ],
                 "Parameters": {
-                    "action": "Install",
-                    "name": "AWSCodeDeployAgent"
+                    "action": ["Install"],
+                    "name": ["AWSCodeDeployAgent"]
                 },
                 "ScheduleExpression": "rate(7 days)"
             },
@@ -622,14 +669,14 @@
         "InstanceId": {
             "Description": "InstanceId of the newly created EC2 instance",
             "Value": {
-                "Ref": "EC2Instance"
+                "Ref": "EC2Storver"
             }
         },
         "AZ": {
             "Description": "Availability Zone of the newly created EC2 instance",
             "Value": {
                 "Fn::GetAtt": [
-                    "EC2Instance",
+                    "EC2Storver",
                     "AvailabilityZone"
                 ]
             }
@@ -638,7 +685,7 @@
             "Description": "Public DNSName of the newly created EC2 instance",
             "Value": {
                 "Fn::GetAtt": [
-                    "EC2Instance",
+                    "EC2Storver",
                     "PublicDnsName"
                 ]
             }
@@ -647,7 +694,7 @@
             "Description": "Public IP address of the newly created EC2 instance",
             "Value": {
                 "Fn::GetAtt": [
-                    "EC2Instance",
+                    "EC2Storver",
                     "PublicIp"
                 ]
             }
