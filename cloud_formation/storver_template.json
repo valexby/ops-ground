@@ -626,6 +626,18 @@
                 }
             }
         },
+        "S3CodeDeploy": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Application",
+                        "Value": "Storver"
+                    }
+                ]
+            },
+            "Metadata": {}
+        },
         "S3DockerImages": {
             "Type": "AWS::S3::Bucket",
             "Properties": {
@@ -672,12 +684,60 @@
         },
         "ECRStorver": {
             "Type": "AWS::ECR::Repository",
-            "Properties": {},
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Application",
+                        "Value": "Storver"
+                    }
+                ]
+            },
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
                     "id": "b2b74035-77a9-4af6-a7c9-933f3f58843b"
                 }
             }
+        },
+        "IAMPolicyBackend": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "ecr:GetRegistryPolicy",
+                                "ecr:DescribeRegistry",
+                                "ecr:GetAuthorizationToken",
+                            ],
+                            "Resource": {
+                                "Fn::GetAtt": [
+                                    "ECRStorver",
+                                    "Arn"
+                                ]
+                            }
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:Get*",
+                                "s3:List*"
+                            ],
+                            "Resource": {
+                                "Fn::GetAtt": [
+                                    "S3CodeDeploy",
+                                    "Arn"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            "DependsOn": [
+                "S3CodeDeploy",
+                "ECRStorver"
+            ]
         }
     },
     "Outputs": {
