@@ -589,14 +589,14 @@
                 ],
                 "AttributeDefinitions": [
                     {
-                        "AttributeName" : "ObjectLink",
-                        "AttributeType" : "S"
+                        "AttributeName": "ObjectLink",
+                        "AttributeType": "S"
                     }
                 ],
                 "KeySchema": [
                     {
-                        "AttributeName" : "ObjectLink",
-                        "KeyType" : "HASH"
+                        "AttributeName": "ObjectLink",
+                        "KeyType": "HASH"
                     }
                 ],
                 "ProvisionedThroughput": {
@@ -649,18 +649,33 @@
                 "Targets": [
                     {
                         "Key": "tag:InstancePurpose",
-                        "Values": ["Backend"]
+                        "Values": [
+                            "Backend"
+                        ]
                     }
                 ],
                 "Parameters": {
-                    "action": ["Install"],
-                    "name": ["AWSCodeDeployAgent"]
+                    "action": [
+                        "Install"
+                    ],
+                    "name": [
+                        "AWSCodeDeployAgent"
+                    ]
                 },
                 "ScheduleExpression": "rate(7 days)"
             },
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
                     "id": "cabebbf5-85bd-44a4-85f5-6d7590acb401"
+                }
+            }
+        },
+        "ECRStorver": {
+            "Type": "AWS::ECR::Repository",
+            "Properties": {},
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "b2b74035-77a9-4af6-a7c9-933f3f58843b"
                 }
             }
         }
@@ -696,6 +711,15 @@
                 "Fn::GetAtt": [
                     "EC2Storver",
                     "PublicIp"
+                ]
+            }
+        },
+        "ECRRepoUri": {
+            "Description": "Docker container repository name",
+            "Value": {
+                "Fn::GetAtt": [
+                    "ECRStorver",
+                    "RepositoryUri"
                 ]
             }
         }
@@ -778,6 +802,18 @@
                 "position": {
                     "x": 110,
                     "y": 190
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "b2b74035-77a9-4af6-a7c9-933f3f58843b": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 20,
+                    "y": -40
                 },
                 "z": 0,
                 "embeds": []
