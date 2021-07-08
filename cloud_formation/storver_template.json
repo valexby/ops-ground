@@ -538,7 +538,10 @@
                         "Key": "Application",
                         "Value": "Storver"
                     }
-                ]
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "IAMBackendProfile"
+                }
             },
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
@@ -548,7 +551,9 @@
             "DependsOn": [
                 "S3Pictures",
                 "S3DockerImages",
-                "DDBPictures"
+                "DDBPictures",
+                "ECRStorver",
+                "IAMBackendProfile"
             ]
         },
         "StorverSecurityGroup": {
@@ -698,7 +703,38 @@
                 }
             }
         },
-        "IAMPolicyBackend": {
+        "PolicyAllowS3CodeDeployRead": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:Get*",
+                                "s3:List*"
+                            ],
+                            "Resource": {
+                                "Fn::GetAtt": [
+                                    "S3CodeDeploy",
+                                    "Arn"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "PolicyName": "PolicyAllowS3CodeDeployRead",
+                "Roles": [{
+                    "Ref": "IAMRoleBackend"
+                }]
+            },
+            "DependsOn": [
+                "S3CodeDeploy",
+                "IAMRoleBackend"
+            ]
+        },
+        "PolicyAllowECRStorverPull": {
             "Type": "AWS::IAM::Policy",
             "Properties": {
                 "PolicyDocument": {
@@ -717,27 +753,110 @@
                                     "Arn"
                                 ]
                             }
-                        },
+                        }
+                    ]
+                },
+                "PolicyName": "PolicyAllowECRStorverPull",
+                "Roles": [{
+                    "Ref": "IAMRoleBackend"
+                }]
+            },
+            "DependsOn": [
+                "ECRStorver",
+                "IAMRoleBackend"
+            ]
+        },
+        "PolicyAllowDDBPicturesCRUD": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
                         {
                             "Effect": "Allow",
                             "Action": [
-                                "s3:Get*",
-                                "s3:List*"
+                                "dynamodb:*"
                             ],
                             "Resource": {
                                 "Fn::GetAtt": [
-                                    "S3CodeDeploy",
+                                    "DDBPictures",
                                     "Arn"
                                 ]
                             }
                         }
                     ]
-                }
+                },
+                "PolicyName": "PolicyAllowDDBPicturesCRUD",
+                "Roles": [{
+                    "Ref": "IAMRoleBackend"
+                }]
             },
             "DependsOn": [
-                "S3CodeDeploy",
-                "ECRStorver"
+                "DDBPictures",
+                "IAMRoleBackend"
             ]
+        },
+        "PolicyAllowS3PicturesCRUD": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:*"
+                            ],
+                            "Resource": {
+                                "Fn::GetAtt": [
+                                    "S3Pictures",
+                                    "Arn"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "PolicyName": "PolicyAllowS3PicturesCRUD",
+                "Roles": [{
+                    "Ref": "IAMRoleBackend"
+                }]
+            },
+            "DependsOn": [
+                "S3Pictures",
+                "IAMRoleBackend"
+            ]
+        },
+        "IAMRoleBackend": {
+            "Type" : "AWS::IAM::Role",
+            "Properties" : {
+                "AssumeRolePolicyDocument" :  {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Description" : "Backend EC2 role with access to production S3 and Dynamo, and operational S3 and ECR",
+                "RoleName": "IAMRoleBackend",
+            }
+        },
+        "IAMBackendProfile": {
+            "Type" : "AWS::IAM::InstanceProfile",
+            "Properties" : {
+                "InstanceProfileName" : "IAMBackendProfile",
+                "Roles" : [{
+                    "Ref": "IAMRoleBackend"
+                }]
+            }
         }
     },
     "Outputs": {
