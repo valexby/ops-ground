@@ -537,6 +537,10 @@
                     {
                         "Key": "Application",
                         "Value": "Storver"
+                    },
+                    {
+                        "Key": "Test",
+                        "Value": "Test"
                     }
                 ],
                 "IamInstanceProfile": {
