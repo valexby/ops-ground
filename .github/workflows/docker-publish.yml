@@ -42,14 +42,22 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Create CodeDeploy deployment
-        uses: chrislennon/action-aws-cli@1.1
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-2
+      - name: Create or update CloudFormation stack
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
       - run: |
           cloud_formation/create_or_update_stack.sh us-east-2 StorverTestStack --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM --template-body file://cloud_formation/storver_template.json --parameter ParameterKey=KeyName,ParameterValue=av_pro_laptop
+      # - name: Create CodeDeploy deployment
+      #   uses: chrislennon/action-aws-cli@1.1
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: us-east-2
+      # - run: |
+      #     cloud_formation/create_or_update_stack.sh us-east-2 StorverTestStack --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM --template-body file://cloud_formation/storver_template.json --parameter ParameterKey=KeyName,ParameterValue=av_pro_laptop
 
 
   # Push image to GitHub Packages.
